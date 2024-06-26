@@ -4,9 +4,9 @@ import { createCategory, updateCategory, removeCategory, listCategories, readCat
 
 
 const router = express.Router();
-router.route('/').post(authenticate, authorizedAdmin, createCategory);
-router.route('/categories/:categoryId').put(authenticate, authorizedAdmin, updateCategory);
-router.route('/categories/:categoryId').delete(authenticate, authorizedAdmin, removeCategory);
+router.route('/:categories').post(authenticate, authorizedAdmin, createCategory);
+router.route('/:categories/:categoryId').put(authenticate, authorizedAdmin, updateCategory);
+router.route('/:categories/:categoryId').delete(authenticate, authorizedAdmin, removeCategory);
 router.route('/:categories').get(listCategories);
 router.route('/:id').get(readCategory);  // Read a single category by ID
 

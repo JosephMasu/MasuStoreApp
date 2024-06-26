@@ -1,0 +1,203 @@
+import asynchhandler from "../middlewares/asyncHandler.js";
+import Product from "../models/productModel.js";
+import Produt from "../models/productModel.js";
+import mongoose from "mongoose";
+const addProduct = asynchhandler(async(req, res)=>{
+    try {
+        const {name, description, price, category, quantity, brand} = req.fields;
+        switch (true) {
+            case !name:
+                return res.json({error: "Name is requuired"})
+            case !description:
+                return res.json({error: "description is requuired"})    
+            case !price:
+                return res.json({error: "price is requuired"})    
+            case !category:
+                return res.json({error: "category is requuired"})    
+            case !quantity:
+                return res.json({error: "quantity is requuired"})    
+            case !brand:
+                return res.json({error: "brand is requuired"})    
+        }
+        const product = new Produt({...req.fields});
+        await product.save();
+        res.json(product);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(400).json(error,message);
+        
+    }
+});
+
+const updateProductDetails = async (req, res) => {
+    try {
+        const { name, description, price, category, quantity, brand } = req.fields;
+
+        // Check if required fields are missing
+        switch (true) {
+            case !name:
+                return res.json({ error: "Name is required" });
+            case !description:
+                return res.json({ error: "Description is required" });
+            case !price:
+                return res.json({ error: "Price is required" });
+            case !category:
+                return res.json({ error: "Category is required" });
+            case !quantity:
+                return res.json({ error: "Quantity is required" });
+            case !brand:
+                return res.json({ error: "Brand is required" });
+        }
+
+        // Validate if category is a valid ObjectId
+        if (!mongoose.isValidObjectId(category)) {
+            return res.status(400).json({ error: "Invalid category ID" });
+        }
+
+        // Find the product by ID and update it
+        let product = await Product.findByIdAndUpdate(req.params.id, { ...req.fields }, { new: true });
+
+        // Check if product is found
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        // Save the updated product
+        await product.save();
+
+        res.json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error: error.message });
+    }
+};
+
+
+const removeProduct = asynchhandler(async(req, res) =>{
+    try {
+       const product = await Produt.findByIdAndDelete(req.params.id);
+       res.json(product);  
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Server error"});
+    }
+});
+const fetchProducts = asynchhandler(async(req, res) =>{
+    try {
+       const pageSize = 6;
+       const keyword = req.query.keyword ? {name: {$regex: req.query.keyword,
+        $options: "i"}, } : {};
+       const count = await Product.countDocuments({...keyword});
+       const products = await Product.find({...keyword}).limit(pageSize);
+
+       res.json({
+        products,
+        page: 1,
+        pages:Math.ceil(count / pageSize),
+        hasMore: false,
+       });
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Server error"});
+    }
+});
+
+const fetchProductsById = asynchhandler(async(req, res) =>{
+    try {
+       const product = await Produt.findById(req.params.id);
+       if(product){
+       return res.json(product);  
+    }else{
+        res.status(404);
+        throw new Error("Product not found");
+    }
+    } catch (error) {
+        console.error(error);
+        res.status(404).json({error: "Product not Found"});
+    }
+});
+
+
+const fetchAllProducts = asynchhandler(async (req, res) => {
+  try {
+    const products = await Product.find({})
+      .populate("category")
+      .limit(12)
+      .sort({ createdAt: -1 });
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+const reviewProduct = asynchhandler(async (req, res) => {
+    try {
+      const {rating, comment} = req.body;
+      const product = await Product.findById(req.params.id);
+
+      if(product){
+            const alreadyReviwed = product.reviews.find(r => r.user.toString()
+            == req.user._id.toString());
+            if(alreadyReviwed){
+            res.status(400);
+            throw new Error("Product already reviewed"); 
+            }
+            const review = {
+                name: req.user.username,
+                rating: Number(rating),
+                comment,
+                user: req.user._id
+            }
+
+            product.reviews.push(review);
+            product.numReviews = product.reviews.length;
+
+            product.rating = product.reviews.reduce((acc, item) =>item.rating +
+            acc, 0) / product.reviews.length;
+            await product.save();
+            res.status(201).json({message: "Review Added"});
+        }else{
+            res.status(404);
+            throw new console.error("Product Not Found");
+        } 
+
+    } catch (error) {
+      console.error(error);
+      res.status(404).json(error.message);
+    }
+  });
+
+  const fetchTopAllProducts = asynchhandler(async (req, res) => {
+    try {
+        const products = await Product.find({}).sort({ rating: -1 }).limit(4);
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+const fetchNewProducts = asynchhandler(async(req, res) =>{
+    try {
+     const products = await Product.find().sort({ _id: -1}).limit(5);
+     res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+})
+
+
+export {addProduct, 
+    updateProductDetails, 
+    removeProduct, 
+    fetchProducts, 
+    fetchProductsById, 
+    fetchAllProducts,
+    reviewProduct,
+    fetchTopAllProducts, 
+    fetchNewProducts};

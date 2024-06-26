@@ -3,6 +3,7 @@ import { useCreateCategoryMutation, useFetchCategoriesQuery, useRemoveCategoryMu
 import { toast } from 'react-toastify';
 import CategoryForm from '../../components/CategoryForm';
 import Model from '../../components/Model';
+import AdminMenu from './AdminMenu';
 
 const CategoryList = () => {
     const { data: categories } = useFetchCategoriesQuery();
@@ -28,7 +29,7 @@ const CategoryList = () => {
                 toast.error(result.error);
             } else {
                 setName('');
-                toast.success(`${result.data.name} is created successfully`);
+                toast.success(`${result.name} is created successfully`);
             }
         } catch (error) {
             console.error(error);
@@ -37,43 +38,40 @@ const CategoryList = () => {
     };
 
     const handleUpdateCategory = async (e) => {
-        e.preventDefault();
+        e.preventDefault();    
         if (!updatingName) {
-            toast.error('Category name is required');
-            return;
+          toast.error("Category name is required");
+          return;
         }
     
         try {
-            const result = await updateCategory({
-                categoryId: selectedCategory._id,
-                updatedCategory: { name: updatingName },
-            }).unwrap();
+          const result = await updateCategory({
+            categoryId: selectedCategory._id,
+            updatedCategory: {
+              name: updatingName,
+            },
+          }).unwrap();
     
-            if (result.error) {
-                toast.error(result.error);
-            } else if (result.data && result.data.name) {
-                toast.success(`${result.data.name} is updated`);
-                setSelectedCategory(null);
-                setUpdatingName('');
-                setModelVisible(false);
-            } else {
-                toast.error('Failed to update category');
-            }
+          if (result.error) {
+            toast.error(result.error);
+          } else {
+            toast.success(`${result.name} is updated`);
+            setSelectedCategory(null);
+            setUpdatingName("");
+            setModelVisible(false);
+          }
         } catch (error) {
-            console.error(error);
-            toast.error('Category update failed');
+          console.error(error);
         }
-    };
-
+      };
     const handleDeleteCategory = async () => {
         try {
             const result = await deleteCategory(selectedCategory._id).unwrap();
             if (result.error) {
                 toast.error(result.error);
             } else {
-                toast.success(`${result.data.name} is deleted successfully`);
+                toast.success(`${result.name} is deleted successfully`);
                 setSelectedCategory(null);
-                setUpdatingName('');
                 setModelVisible(false);
             }
         } catch (error) {
@@ -84,6 +82,7 @@ const CategoryList = () => {
 
     return (
         <div className="ml-[10rem] flex flex-col md:flex-row">
+            <AdminMenu />
             <div className="md:w-3/4 p-3">
                 <div className="h-12">Manage Categories</div>
 

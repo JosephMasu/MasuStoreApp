@@ -82,6 +82,4 @@ const readCategory = asyncHandler(async (req, res) => {
     }
 
 });
-
-
 export { createCategory, updateCategory, removeCategory, listCategories, readCategory }; 
