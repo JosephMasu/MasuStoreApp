@@ -19,7 +19,7 @@ router.route("/allproducts").get(fetchAllProducts);
 router.route("/top").get(fetchTopAllProducts);
 router.route("/new").get(fetchNewProducts);
 
-router.route("/:id/reviews").post(authenticate, authorizedAdmin, checkId, reviewProduct);
+router.route("/:id/reviews").post(authenticate, checkId, reviewProduct);
 
 
 router

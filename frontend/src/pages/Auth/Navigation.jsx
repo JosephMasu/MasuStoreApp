@@ -10,6 +10,7 @@ import { FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./Navigation.css";
+import FavoritesCount from "../Products/FavoritesCount";
 import { useDispatch, useSelector } from "react-redux";
 import { useLogoutMutation } from "../../redux/api/usersApiSlice";
 import { logout } from "../../redux/features/auth/authSlice";
@@ -87,6 +88,7 @@ const Navigation = () => {
           <div className="flex justify-center items-center transition-transform transform hover:translate-x-2">
             <FaHeart className="mt-[3rem] mr-2" size={20} />
             <span className="hidden nav-item-name mt-[3rem]">Favorites</span>{" "}
+            <FavoritesCount />
           </div>
         </Link>
       </div>  
