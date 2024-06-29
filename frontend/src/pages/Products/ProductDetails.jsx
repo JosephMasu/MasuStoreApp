@@ -39,6 +39,7 @@ const ProductDetails =()=> {
             productId,
             rating,
             comment,
+            
           }).unwrap();
           refetch();
           toast.success("Review created successfully");
