@@ -1,7 +1,6 @@
 import React from 'react'
 
 const Message = (variants, children)=> {
-
     const getvariantClass = ()=>{
         switch(variants){
             case "success":
