@@ -18,5 +18,4 @@ const Model = ({ isOpen, onClose, children }) => {
       </>
     );
   };
-  
   export default Model;
