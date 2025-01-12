@@ -73,7 +73,6 @@ const updateProductDetails = async (req, res) => {
     }
 };
 
-
 const removeProduct = asynchhandler(async(req, res) =>{
     try {
        const product = await Produt.findByIdAndDelete(req.params.id);
